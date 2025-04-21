@@ -1,55 +1,27 @@
 """
 Boot.dev book bot project
 """
+import sys
+from stats import count_characters, count_words
 
 
 def main():
     """Main function for this app"""
-    with open("./books/frankenstein.txt", "r", encoding="UTF-8") as f:
+
+    if len(sys.argv) != 2:
+        print("Usage: python3 main.py <path_to_book>")
+        sys.exit(1)
+
+    book_path = sys.argv[1]
+
+    with open(book_path, "r", encoding="UTF-8") as f:
         text = f.read()
         word_count = count_words(text)
         character_count = count_characters(text)
-        print_report(character_count=character_count, word_count=word_count)
+        print_report(character_count=character_count, word_count=word_count, book_path=book_path)
 
 
-def count_words(text: str) -> int:
-    """
-    Function that counts the number of words in a given text
-
-    Args:
-        text: text to count words from
-
-    Returns: number of words in the text
-
-    """
-    words = text.split()
-    return len(words)
-
-
-def count_characters(text: str) -> dict[str, int]:
-    """
-    Function that counts the number of characters in a given text
-    and returns a dictionary with the charactes as keys and the number of occurences as values
-
-    Args:
-        text: text to count characters from
-
-    Returns: dictionary with the characters as keys and the number of occurences as values
-
-    """
-    lowered_text = text.lower()
-    characters = {}
-    for char in lowered_text:
-        if char.isalpha():
-            if char in characters:
-                characters[char] += 1
-            else:
-                characters[char] = 1
-
-    return characters
-
-
-def print_report(character_count: dict[str, int], word_count: int):
+def print_report(character_count: dict[str, int], word_count: int, book_path: str):
     """
     Function that prints a report message for the given dictionary of characters and
     their counts and the total word count.
@@ -62,15 +34,18 @@ def print_report(character_count: dict[str, int], word_count: int):
     dict_list = dict_to_dict_list(character_count)
     dict_list.sort(reverse=True, key=sort_on_count)
 
-    print("--- Begin report of books/frankenstein.txt --- \n")
-    print(f"{word_count} words found in the document\n")
+    print(f"""============ BOOKBOT ============
+Analyzing book found at {book_path}...
+----------- Word Count ----------
+Found {word_count} total words
+--------- Character Count -------""")
 
     for current_dict in dict_list:
         print(
-            f"The '{current_dict["char"]}' character was found {current_dict["count"]} times"
+            f"{current_dict["char"]}: {current_dict["count"]}"
         )
 
-    print("--- End report ---")
+    print("============= END ===============")
 
 
 def dict_to_dict_list(data: dict[str, int]) -> list[dict[str, str | int]]:
